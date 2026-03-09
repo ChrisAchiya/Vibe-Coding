@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import Canvas
 
 def calculate_grade():
     try:
@@ -48,29 +49,56 @@ def clear_fields():
 root = tk.Tk()
 root.title("Student Grade Calculator")
 
+# Create gradient background
+def create_gradient(canvas, width, height, color1, color2):
+    """Create a vertical gradient from color1 to color2"""
+    for i in range(height):
+        # Calculate color for this line
+        r1, g1, b1 = canvas.winfo_rgb(color1)
+        r2, g2, b2 = canvas.winfo_rgb(color2)
+        r = int(r1 + (r2 - r1) * i / height)
+        g = int(g1 + (g2 - g1) * i / height)
+        b = int(b1 + (b2 - b1) * i / height)
+        color = f'#{r:04x}{g:04x}{b:04x}'
+        canvas.create_line(0, i, width, i, fill=color)
+
+canvas = Canvas(root, highlightthickness=0)
+canvas.pack(fill="both", expand=True)
+
+# Bind resize event to redraw gradient
+def on_resize(event):
+    canvas.delete("all")
+    create_gradient(canvas, event.width, event.height, "#667eea", "#764ba2")
+
+root.bind("<Configure>", on_resize)
+
+# Create a frame for the content with transparent background
+content_frame = tk.Frame(root)
+content_frame.place(relx=0.5, rely=0.5, anchor="center")
+
 # Name input
-tk.Label(root, text="Student Name:").grid(row=0, column=0, padx=10, pady=5, sticky="e")
-name_entry = tk.Entry(root)
+tk.Label(content_frame, text="Student Name:", fg='#ffffff', font=('Arial', 10, 'bold')).grid(row=0, column=0, padx=10, pady=5, sticky="e")
+name_entry = tk.Entry(content_frame, bg='#ffffff', fg='#2e4057', font=('Arial', 10))
 name_entry.grid(row=0, column=1, padx=10, pady=5)
 
 # Marks inputs
 mark_entries = []
 for i in range(3):
-    tk.Label(root, text=f"Mark for Subject {i+1}:").grid(row=i+1, column=0, padx=10, pady=5, sticky="e")
-    entry = tk.Entry(root)
+    tk.Label(content_frame, text=f"Mark for Subject {i+1}:", fg='#ffffff', font=('Arial', 10, 'bold')).grid(row=i+1, column=0, padx=10, pady=5, sticky="e")
+    entry = tk.Entry(content_frame, bg='#ffffff', fg='#2e4057', font=('Arial', 10))
     entry.grid(row=i+1, column=1, padx=10, pady=5)
     mark_entries.append(entry)
 
 # Buttons
-calculate_button = tk.Button(root, text="Calculate Grade", command=calculate_grade)
+calculate_button = tk.Button(content_frame, text="Calculate Grade", command=calculate_grade, bg='#4CAF50', fg='white', font=('Arial', 10, 'bold'), relief='raised', bd=3)
 calculate_button.grid(row=4, column=0, padx=10, pady=10)
 
-clear_button = tk.Button(root, text="Clear", command=clear_fields)
+clear_button = tk.Button(content_frame, text="Clear", command=clear_fields, bg='#f44336', fg='white', font=('Arial', 10, 'bold'), relief='raised', bd=3)
 clear_button.grid(row=4, column=1, padx=10, pady=10)
 
 # Result display
-tk.Label(root, text="Result:").grid(row=5, column=0, padx=10, pady=5, sticky="ne")
-result_text = tk.Text(root, height=6, width=30)
+tk.Label(content_frame, text="Result:", fg='#ffffff', font=('Arial', 10, 'bold')).grid(row=5, column=0, padx=10, pady=5, sticky="ne")
+result_text = tk.Text(content_frame, height=6, width=30, bg='#ffffff', fg='#2e4057', font=('Arial', 10), relief='sunken', bd=2)
 result_text.grid(row=5, column=1, padx=10, pady=5)
 
 # Run the GUI
